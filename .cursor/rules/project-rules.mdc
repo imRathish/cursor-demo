@@ -1,0 +1,63 @@
+---
+alwaysApply: true
+---
+# Project Information
+project_name: "cursor-demo"
+frontend: "cursor-demo/my-app"
+project_type: "React + material ui components"
+
+# Branch Naming Convention
+When creating git branches, always use this format:
+- feature/{TICKET-ID}-{brief-kebab-case-description}
+- bugfix/{TICKET-ID}-{brief-kebab-case-description}
+- hotfix/{TICKET-ID}-{brief-kebab-case-description}
+
+Examples:
+- feature/PROJ-123-user-analytics-dashboard
+- bugfix/PROJ-456-fix-login-redirect
+- hotfix/PROJ-789-critical-security-patch
+
+# Commit Message Structure
+All commit messages must follow this format:
+{TICKET-ID}: {type}: {description}
+
+Types (use exactly these):
+- feat: New feature
+- fix: Bug fix
+- refactor: Code refactoring without functionality change
+- docs: Documentation changes
+- test: Adding or updating tests
+- style: Code style changes (formatting, missing semicolons, etc.)
+- chore: Maintenance tasks, dependency updates
+- perf: Performance improvements
+
+Examples:
+- PROJ-123: feat: add user analytics dashboard with real-time metrics
+- PROJ-456: fix: resolve login redirect loop on session timeout
+- PROJ-789: refactor: extract authentication logic into custom hook
+- PROJ-234: test: add unit tests for UserMetrics component
+
+# Pull Request Requirements
+When creating pull requests:
+
+Title format: [{TICKET-ID}] {Brief description}
+Example: [PROJ-123] User Analytics Dashboard
+
+Description template:
+
+Description
+{Brief overview of changes}
+Changes Made
+
+{Change 1}
+{Change 2}
+{Change 3}
+
+Related Ticket
+Jira: TICKET-ID
+
+Target branch: main
+Auto-assign reviewers based on:
+- Frontend changes → @frontend-team
+- Backend changes → @backend-team
+- Full-stack changes → @tech-leads
