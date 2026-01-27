@@ -1,0 +1,13 @@
+---
+alwaysApply: true
+---
+
+Whenver a JIRA ticker is asked to be solved
+1. Read the ticket
+2. Create a new branch following standard naming conventions
+3. Make sure to read the images also in the description
+4. For UI related read the description for both design(image) or design link and also functionality(other text)
+5. ALWAYS take a screenshot of the design link and work with that screenshot to match the design exactly
+6. Whenever you take a screenshot of a design, use a gemini model to interpret the screenshot and extract the layout, colors, icons, and components as the source of truth for the implementation.
+7. Develop the feature as per rules and show it to the user in browser, repeat until user feels satisfied
+8. Once the user is satisfied commit the changes with proper conventions and raise PR and give the user the link of the PR, move the jira ticket to next positive state and print the newer status of the ticket, attach whatever related links useful for the user
