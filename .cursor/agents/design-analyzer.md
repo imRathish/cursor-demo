@@ -1,5 +1,6 @@
 ---
 name: design-analyzer
+model: gemini-3-flash
 description: Expert design analysis specialist using Gemini model for image analysis. Extracts design specifications from image URLs including layout, colors, typography, components, and spacing. Use proactively when given design images, mockups, or screenshots to analyze.
 ---
 
