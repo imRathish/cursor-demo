@@ -1,33 +1,48 @@
-import { useState } from 'react'
-import './App.css'
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import KanbanBoard from './components/KanbanBoard';
+
+const theme = createTheme({
+  typography: {
+    fontFamily: '"Plus Jakarta Sans", "Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+  },
+  palette: {
+    primary: {
+      main: '#4318FF',
+    },
+    background: {
+      default: '#F4F7FE',
+    },
+    text: {
+      primary: '#2B3674',
+      secondary: '#A3AED0',
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          borderRadius: '12px',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: '20px',
+        },
+      },
+    },
+  },
+});
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src="/react.svg" className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <KanbanBoard />
+    </ThemeProvider>
+  );
 }
 
-export default App
+export default App;
