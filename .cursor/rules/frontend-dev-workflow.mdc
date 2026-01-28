@@ -6,7 +6,8 @@ Whenver a JIRA ticker is asked to be solved
 1. Read the ticket - read the description, image link (design), confluence link(functionality)
 2. Create a new branch following standard naming conventions
 3. Make sure to read the images also in the description
-4. For UI related read the description for both design(image) or design link and also functionality(other text)
+4. For UI related read the description for both design(image link) and also functionality(confluience link)
+IF ur not able to read conflucne or image let the user know
 5. ALWAYS take a screenshot of the design link and work with that screenshot to match the design exactly
 7. For functionality make sure you digest the prd in confluence mentioned as link in description
 8. Develop the feature as per rules and show it to the user in browser, repeat until user feels satisfied
