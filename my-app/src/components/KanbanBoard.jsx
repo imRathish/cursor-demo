@@ -12,9 +12,13 @@ import {
   Link,
   Paper,
   Container,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CommentIcon from '@mui/icons-material/Comment';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import HomeIcon from '@mui/icons-material/Home';
 import { styled } from '@mui/material/styles';
 
 const PageContainer = styled(Box)({
@@ -23,14 +27,19 @@ const PageContainer = styled(Box)({
   padding: 0,
 });
 
+const GradientHeader = styled(Box)(({ theme }) => ({
+  background: 'linear-gradient(135deg, #6C5CE7 0%, #4834D4 50%, #2D3436 100%)',
+  padding: theme.spacing(3, 4),
+  color: 'white',
+}));
+
 const HeaderSection = styled(Box)(({ theme }) => ({
   backgroundColor: '#ffffff',
-  padding: theme.spacing(3, 4),
+  padding: theme.spacing(2, 4),
   borderBottom: '1px solid #e0e0e0',
 }));
 
-const StyledColumn = styled(Paper)(({ theme }) => ({
-  backgroundColor: '#f5f5f5',
+const StyledColumn = styled(Paper)(({ theme, isDraggingOver }) => ({
   padding: theme.spacing(2),
   borderRadius: theme.spacing(1.5),
   minHeight: '600px',
@@ -39,6 +48,9 @@ const StyledColumn = styled(Paper)(({ theme }) => ({
   gap: theme.spacing(2),
   flex: 1,
   width: '100%',
+  border: isDraggingOver ? '2px dashed #6C5CE7' : 'none',
+  backgroundColor: isDraggingOver ? '#f0f0f0' : '#f5f5f5',
+  transition: 'background-color 0.2s, border 0.2s',
 }));
 
 const ColumnHeader = styled(Box)(({ theme, headerColor }) => ({
@@ -52,23 +64,31 @@ const ColumnHeader = styled(Box)(({ theme, headerColor }) => ({
   fontWeight: 600,
 }));
 
-const StyledCard = styled(Card)(({ theme }) => ({
+const StyledCard = styled(Card)(({ theme, isDragging }) => ({
   borderRadius: theme.spacing(1.5),
   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
   backgroundColor: '#ffffff',
-  transition: 'transform 0.2s, box-shadow 0.2s',
+  transition: 'transform 0.2s, box-shadow 0.2s, opacity 0.2s',
+  opacity: isDragging ? 0.5 : 1,
+  userSelect: 'none',
+  WebkitUserSelect: 'none',
   '&:hover': {
     transform: 'translateY(-2px)',
     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
   },
-  cursor: 'pointer',
+  cursor: 'grab',
+  '&:active': {
+    cursor: 'grabbing',
+  },
 }));
 
 const PriorityChip = styled(Chip)(({ theme, priority }) => {
   const colors = {
-    important: { bg: '#E8D5FF', color: '#7B2CBF' },
+    important: { bg: '#FFE5E5', color: '#D63031' },
     high: { bg: '#FFE5CC', color: '#FF6B35' },
+    medium: { bg: '#FFF4E6', color: '#F39C12' },
     low: { bg: '#E0E0E0', color: '#616161' },
+    'high-priority': { bg: '#D5F4E6', color: '#00B894' },
   };
   const colorScheme = colors[priority] || colors.low;
   return {
@@ -95,28 +115,33 @@ const AddTaskButton = styled(Button)(({ theme, buttonColor }) => ({
 }));
 
 const KanbanBoard = () => {
+  const [view, setView] = useState('list');
+  const [draggedTask, setDraggedTask] = useState(null);
+  const [draggedFromColumn, setDraggedFromColumn] = useState(null);
   const [tasks, setTasks] = useState({
     todo: [
       {
         id: 1,
         title: 'UI/UX Design in the age of AI',
         priority: 'important',
-        assignees: ['L', 'C'],
-        comments: 15,
+        assignees: ['L'],
+        comments: 2,
+        time: '1h',
       },
       {
         id: 2,
         title: 'Responsive Website Design for 23 more clients',
         priority: 'high',
-        assignees: ['A', 'B', 'C', 'D'],
-        comments: 2,
+        assignees: ['A', 'B', 'C'],
+        additionalAssignees: 3,
+        comments: 32,
       },
       {
         id: 3,
-        title: 'Blog Copywriting (Low priority)',
-        priority: 'low',
-        assignees: ['E'],
-        comments: 7,
+        title: 'Blog Copywriting (low priority UI)',
+        priority: 'medium',
+        assignees: ['E', 'F'],
+        comments: 987,
       },
     ],
     inProgress: [
@@ -124,15 +149,15 @@ const KanbanBoard = () => {
         id: 4,
         title: 'Machine Learning Progress',
         priority: 'important',
-        assignees: ['F', 'G'],
-        comments: 11,
+        assignees: ['G', 'H'],
+        comments: 19,
       },
       {
         id: 5,
         title: 'Learn Computer Science',
-        priority: 'high',
-        assignees: ['H', 'I', 'J', 'K'],
-        comments: 32,
+        priority: 'medium',
+        assignees: ['I', 'J', 'K'],
+        comments: 12,
       },
     ],
     completed: [
@@ -146,16 +171,16 @@ const KanbanBoard = () => {
       {
         id: 7,
         title: 'Do some usual chores',
-        priority: 'high',
-        assignees: ['N'],
+        priority: 'high-priority',
+        assignees: ['N', 'O', 'P'],
         comments: 1,
       },
       {
         id: 8,
-        title: 'Write a few articles for slothtr',
+        title: 'Write a few articles for slotkit',
         priority: 'low',
-        assignees: ['O'],
-        comments: 7,
+        assignees: ['Q', 'R'],
+        comments: 987,
       },
     ],
   });
@@ -164,7 +189,7 @@ const KanbanBoard = () => {
     {
       id: 'todo',
       title: 'To Do',
-      headerColor: '#9B7EDE',
+      headerColor: '#6C5CE7',
       buttonColor: '#6C5CE7',
       tasks: tasks.todo,
     },
@@ -187,27 +212,149 @@ const KanbanBoard = () => {
   const getPriorityLabel = (priority) => {
     const labels = {
       important: 'Important',
-      high: 'High priority',
+      high: 'High',
+      medium: 'Medium',
       low: 'Low priority',
+      'high-priority': 'High Priority',
     };
     return labels[priority] || 'Low priority';
   };
 
+  const handleViewChange = (event, newView) => {
+    if (newView !== null) {
+      setView(newView);
+    }
+  };
+
+  const handleDragStart = (e, task, columnId) => {
+    setDraggedTask(task);
+    setDraggedFromColumn(columnId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('application/json', JSON.stringify({ taskId: task.id, columnId }));
+    // Set drag image to be the card itself
+    if (e.target) {
+      e.dataTransfer.setDragImage(e.target, 0, 0);
+    }
+  };
+
+  const handleDragEnd = (e) => {
+    setDraggedTask(null);
+    setDraggedFromColumn(null);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e, targetColumnId) => {
+    e.preventDefault();
+    
+    if (!draggedTask || draggedFromColumn === targetColumnId) {
+      return;
+    }
+
+    // Remove task from source column
+    const sourceTasks = tasks[draggedFromColumn].filter((t) => t.id !== draggedTask.id);
+    
+    // Add task to target column
+    const targetTasks = [...tasks[targetColumnId], draggedTask];
+
+    setTasks({
+      ...tasks,
+      [draggedFromColumn]: sourceTasks,
+      [targetColumnId]: targetTasks,
+    });
+
+    setDraggedTask(null);
+    setDraggedFromColumn(null);
+  };
+
   return (
     <PageContainer>
-      <HeaderSection>
-        <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
-          <Link color="inherit" href="#" sx={{ textDecoration: 'none', color: '#666' }}>
-            Projects
-          </Link>
-          <Typography color="text.primary" sx={{ color: '#666' }}>
-            FoodDelivery
-          </Typography>
-        </Breadcrumbs>
+      <GradientHeader>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <HomeIcon sx={{ fontSize: 20 }} />
+            <Breadcrumbs aria-label="breadcrumb" sx={{ '& .MuiBreadcrumbs-separator': { color: 'rgba(255,255,255,0.7)' } }}>
+              <Link color="inherit" href="#" sx={{ textDecoration: 'none', color: 'rgba(255,255,255,0.9)' }}>
+                Projects
+              </Link>
+              <Typography sx={{ color: 'rgba(255,255,255,0.9)' }}>Food Delivery</Typography>
+            </Breadcrumbs>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <NotificationsIcon sx={{ fontSize: 20, cursor: 'pointer' }} />
+            <Avatar sx={{ width: 32, height: 32, bgcolor: 'rgba(255,255,255,0.2)' }}>U</Avatar>
+            <Button
+              variant="contained"
+              sx={{
+                bgcolor: '#4834D4',
+                color: 'white',
+                textTransform: 'none',
+                '&:hover': { bgcolor: '#3D2E9E' },
+              }}
+            >
+              Export Data
+            </Button>
+            <Avatar sx={{ width: 32, height: 32, bgcolor: 'rgba(255,255,255,0.2)' }}>SS</Avatar>
+          </Box>
+        </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h4" sx={{ fontWeight: 600, color: '#333' }}>
-            Food Delivery Project
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography variant="h4" sx={{ fontWeight: 600, color: 'white' }}>
+              Food Delivery Project
+            </Typography>
+            <Chip
+              label="Label"
+              size="small"
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                fontSize: '0.75rem',
+                height: '24px',
+              }}
+            />
+          </Box>
+        </Box>
+      </GradientHeader>
+
+      <HeaderSection>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <ToggleButtonGroup
+            value={view}
+            exclusive
+            onChange={handleViewChange}
+            aria-label="view selection"
+            sx={{
+              '& .MuiToggleButton-root': {
+                textTransform: 'none',
+                border: '1px solid #e0e0e0',
+                color: '#666',
+                '&.Mui-selected': {
+                  bgcolor: '#E3F2FD',
+                  color: '#1976D2',
+                  border: '1px solid #1976D2',
+                  '&:hover': {
+                    bgcolor: '#BBDEFB',
+                  },
+                },
+              },
+            }}
+          >
+            <ToggleButton value="grid" aria-label="grid view">
+              Grid View
+            </ToggleButton>
+            <ToggleButton value="list" aria-label="list view">
+              List View
+            </ToggleButton>
+            <ToggleButton value="column" aria-label="column view">
+              Column View
+            </ToggleButton>
+            <ToggleButton value="row" aria-label="row view">
+              Row View
+            </ToggleButton>
+          </ToggleButtonGroup>
           <Box sx={{ display: 'flex', gap: 2 }}>
             <Button variant="outlined" sx={{ textTransform: 'none' }}>
               Filter
@@ -229,7 +376,12 @@ const KanbanBoard = () => {
           }}
         >
           {columns.map((column) => (
-            <StyledColumn key={column.id}>
+            <StyledColumn
+              key={column.id}
+              isDraggingOver={draggedTask && draggedFromColumn !== column.id}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, column.id)}
+            >
               <ColumnHeader headerColor={column.headerColor}>
                 <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1rem' }}>
                   {column.title}
@@ -250,14 +402,27 @@ const KanbanBoard = () => {
 
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
                 {column.tasks.map((task) => (
-                  <StyledCard key={task.id}>
+                  <StyledCard
+                    key={task.id}
+                    isDragging={draggedTask?.id === task.id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, task, column.id)}
+                    onDragEnd={handleDragEnd}
+                  >
                     <CardContent sx={{ padding: '16px !important' }}>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                        <PriorityChip
-                          label={getPriorityLabel(task.priority)}
-                          priority={task.priority}
-                          size="small"
-                        />
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <PriorityChip
+                            label={getPriorityLabel(task.priority)}
+                            priority={task.priority}
+                            size="small"
+                          />
+                          {task.time && (
+                            <Typography variant="body2" sx={{ color: '#666', fontSize: '0.75rem' }}>
+                              {task.time}
+                            </Typography>
+                          )}
+                        </Box>
                         <Typography
                           variant="body1"
                           sx={{ fontWeight: 500, fontSize: '0.9rem', color: '#333' }}
@@ -272,33 +437,41 @@ const KanbanBoard = () => {
                             mt: 1,
                           }}
                         >
-                          <AvatarGroup
-                            max={4}
-                            sx={{
-                              '& .MuiAvatar-root': {
-                                width: 28,
-                                height: 28,
-                                fontSize: '0.75rem',
-                                border: '2px solid white',
-                                marginLeft: '-8px',
-                                '&:first-of-type': { marginLeft: 0 },
-                              },
-                            }}
-                          >
-                            {task.assignees.map((initial, idx) => (
-                              <Avatar
-                                key={idx}
-                                sx={{
-                                  bgcolor: '#9B7EDE',
-                                  fontSize: '0.75rem',
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <AvatarGroup
+                              max={3}
+                              sx={{
+                                '& .MuiAvatar-root': {
                                   width: 28,
                                   height: 28,
-                                }}
-                              >
-                                {initial}
-                              </Avatar>
-                            ))}
-                          </AvatarGroup>
+                                  fontSize: '0.75rem',
+                                  border: '2px solid white',
+                                  marginLeft: '-8px',
+                                  bgcolor: '#9B7EDE',
+                                  '&:first-of-type': { marginLeft: 0 },
+                                },
+                              }}
+                            >
+                              {task.assignees.map((initial, idx) => (
+                                <Avatar
+                                  key={idx}
+                                  sx={{
+                                    bgcolor: '#9B7EDE',
+                                    fontSize: '0.75rem',
+                                    width: 28,
+                                    height: 28,
+                                  }}
+                                >
+                                  {initial}
+                                </Avatar>
+                              ))}
+                            </AvatarGroup>
+                            {task.additionalAssignees && (
+                              <Typography variant="body2" sx={{ color: '#666', fontSize: '0.75rem', ml: 0.5 }}>
+                                +{task.additionalAssignees}
+                              </Typography>
+                            )}
+                          </Box>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <CommentIcon sx={{ fontSize: 16, color: '#666' }} />
                             <Typography
