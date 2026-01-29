@@ -19,6 +19,7 @@ import AddIcon from '@mui/icons-material/Add';
 import CommentIcon from '@mui/icons-material/Comment';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import HomeIcon from '@mui/icons-material/Home';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { styled } from '@mui/material/styles';
 
 const PageContainer = styled(Box)({
@@ -115,7 +116,7 @@ const AddTaskButton = styled(Button)(({ theme, buttonColor }) => ({
 }));
 
 const KanbanBoard = () => {
-  const [view, setView] = useState('list');
+  const [view, setView] = useState('column');
   const [draggedTask, setDraggedTask] = useState(null);
   const [draggedFromColumn, setDraggedFromColumn] = useState(null);
   const [tasks, setTasks] = useState({
@@ -124,24 +125,26 @@ const KanbanBoard = () => {
         id: 1,
         title: 'UI/UX Design in the age of AI',
         priority: 'important',
-        assignees: ['L'],
-        comments: 2,
-        time: '1h',
+        assignees: ['L', 'C'],
+        comments: 19,
+        time: '5h',
       },
       {
         id: 2,
-        title: 'Responsive Website Design for 23 more clients',
+        title: 'Responsive Website Design for 25 more clients',
         priority: 'high',
         assignees: ['A', 'B', 'C'],
-        additionalAssignees: 3,
+        additionalAssignees: 1,
         comments: 32,
+        time: '5h',
       },
       {
         id: 3,
-        title: 'Blog Copywriting (low priority UI)',
-        priority: 'medium',
-        assignees: ['E', 'F'],
-        comments: 987,
+        title: 'Blog Copywriting (Low priority)',
+        priority: 'low',
+        assignees: ['E'],
+        comments: 18,
+        time: '9h',
       },
     ],
     inProgress: [
@@ -149,15 +152,17 @@ const KanbanBoard = () => {
         id: 4,
         title: 'Machine Learning Progress',
         priority: 'important',
-        assignees: ['G', 'H'],
+        assignees: ['F', 'G'],
         comments: 19,
+        time: '5h',
       },
       {
         id: 5,
         title: 'Learn Computer Science',
-        priority: 'medium',
-        assignees: ['I', 'J', 'K'],
-        comments: 12,
+        priority: 'high',
+        assignees: ['H', 'I', 'J', 'K'],
+        comments: 32,
+        time: '5h',
       },
     ],
     completed: [
@@ -166,21 +171,24 @@ const KanbanBoard = () => {
         title: 'User flow confirmation for fintech App',
         priority: 'important',
         assignees: ['L', 'M'],
-        comments: 11,
+        comments: 19,
+        time: '5h',
       },
       {
         id: 7,
         title: 'Do some usual chores',
         priority: 'high-priority',
-        assignees: ['N', 'O', 'P'],
+        assignees: ['N'],
         comments: 1,
+        time: '5h',
       },
       {
         id: 8,
-        title: 'Write a few articles for slotkit',
+        title: 'Write a few articles for slothful',
         priority: 'low',
-        assignees: ['Q', 'R'],
+        assignees: ['O'],
         comments: 987,
+        time: '9h',
       },
     ],
   });
@@ -331,13 +339,17 @@ const KanbanBoard = () => {
                 textTransform: 'none',
                 border: '1px solid #e0e0e0',
                 color: '#666',
+                bgcolor: '#f5f5f5',
                 '&.Mui-selected': {
-                  bgcolor: '#E3F2FD',
-                  color: '#1976D2',
-                  border: '1px solid #1976D2',
+                  bgcolor: '#424242',
+                  color: '#ffffff',
+                  border: '1px solid #424242',
                   '&:hover': {
-                    bgcolor: '#BBDEFB',
+                    bgcolor: '#616161',
                   },
+                },
+                '&:hover': {
+                  bgcolor: '#e0e0e0',
                 },
               },
             }}
@@ -348,7 +360,7 @@ const KanbanBoard = () => {
             <ToggleButton value="list" aria-label="list view">
               List View
             </ToggleButton>
-            <ToggleButton value="column" aria-label="column view">
+            <ToggleButton value="column" aria-label="column view" selected>
               Column View
             </ToggleButton>
             <ToggleButton value="row" aria-label="row view">
@@ -384,10 +396,10 @@ const KanbanBoard = () => {
             >
               <ColumnHeader headerColor={column.headerColor}>
                 <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1rem' }}>
-                  {column.title}
+                  • {column.title}
                 </Typography>
                 <Typography variant="body2" sx={{ opacity: 0.9, fontSize: '0.875rem' }}>
-                  {column.tasks.length} total
+                  {column.tasks.length} Total
                 </Typography>
               </ColumnHeader>
 
@@ -411,18 +423,11 @@ const KanbanBoard = () => {
                   >
                     <CardContent sx={{ padding: '16px !important' }}>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <PriorityChip
-                            label={getPriorityLabel(task.priority)}
-                            priority={task.priority}
-                            size="small"
-                          />
-                          {task.time && (
-                            <Typography variant="body2" sx={{ color: '#666', fontSize: '0.75rem' }}>
-                              {task.time}
-                            </Typography>
-                          )}
-                        </Box>
+                        <PriorityChip
+                          label={getPriorityLabel(task.priority)}
+                          priority={task.priority}
+                          size="small"
+                        />
                         <Typography
                           variant="body1"
                           sx={{ fontWeight: 500, fontSize: '0.9rem', color: '#333' }}
@@ -472,14 +477,27 @@ const KanbanBoard = () => {
                               </Typography>
                             )}
                           </Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <CommentIcon sx={{ fontSize: 16, color: '#666' }} />
-                            <Typography
-                              variant="body2"
-                              sx={{ color: '#666', fontSize: '0.875rem' }}
-                            >
-                              {task.comments}
-                            </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <CommentIcon sx={{ fontSize: 16, color: '#666' }} />
+                              <Typography
+                                variant="body2"
+                                sx={{ color: '#666', fontSize: '0.875rem' }}
+                              >
+                                {task.comments}
+                              </Typography>
+                            </Box>
+                            {task.time && (
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                <AccessTimeIcon sx={{ fontSize: 16, color: '#666' }} />
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: '#666', fontSize: '0.875rem' }}
+                                >
+                                  {task.time}
+                                </Typography>
+                              </Box>
+                            )}
                           </Box>
                         </Box>
                       </Box>
